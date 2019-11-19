@@ -5,7 +5,26 @@ screenCtx = screen.getContext("2d");
 let speeds = [2, 4, 8, 16, 32, 64];
 let speed = 8;
 
+let sprites = [];
+
 onResize();
+let spritesheet = new Image();
+
+spritesheet.onload = () => {
+    let sprite = {
+        image: spritesheet,
+        x: 64,
+        y: 0,//screen.height / 6 * 4,
+        width: spritesheet.width / 8,
+        height: spritesheet.height / 2,
+        index: 0
+    }
+
+    sprites.push(sprite);
+};
+
+spritesheet.src = "./img/test_sprite_run.png";
+
 let rects = [
     { x: screen.width - speeds[0], y: screen.height / 6 * 0, width: screen.width / 2, height: screen.height / 6, style: "red" },
     { x: screen.width - speeds[1], y: screen.height / 6 * 1, width: screen.width / 2, height: screen.height / 6, style: "orange" },
@@ -29,13 +48,20 @@ function loop() {
         if (rects[i].x + rects[i].width < 0) rects[i].x = screen.width;
     }
 
-    rects[6].y += speed;
-    if (rects[6].y < 0 || rects[6].y > screen.height - rects[6].height) speed *= -1;
+    //sprites[0].y += speed;
+    //if (sprites[0].y < 0 || sprites[0].y > screen.height - sprites[0].height) speed *= -1;
     
     rects.forEach(rect => {
         screenCtx.fillStyle = rect.style;
         screenCtx.fillRect(rect.x, rect.y, rect.width, rect.height);
     });  
+
+    sprites.forEach(sprite => {
+        screenCtx.drawImage(sprite.image, Math.floor(sprite.index) * sprite.width, 0, sprite.width, sprite.height, sprite.x, sprite.y, sprite.width, sprite.height);
+        sprite.index += 0.2;
+        if (sprite.index >= 8) sprite.index = 0;
+    });
+
     requestAnimationFrame(loop);
 }
 
