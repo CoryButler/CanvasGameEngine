@@ -2,7 +2,17 @@ let screen = document.getElementById("screen");
 
 screenCtx = screen.getContext("2d");
 
-let speeds = [2, 4, 8, 16, 32, 64];
+let keys = [];
+window.addEventListener("keydown", evt => { if (keys.indexOf(evt.code) < 0) keys.push(evt.code); });
+window.addEventListener("keyup", evt => { keys.splice(keys.indexOf(evt.code), 1); });
+
+let currSpeed = 0;
+let accel = 1;
+let decel = -2;
+let maxSpeed = 1;
+
+let speeds = [2, 8, 16, 32, 64, 128];
+//let speeds = [1, 2, 3, 4, 5, 6];
 let speed = 8;
 
 let sprites = [];
@@ -14,7 +24,7 @@ spritesheet.onload = () => {
     let sprite = {
         image: spritesheet,
         x: 64,
-        y: 0,//screen.height / 6 * 4,
+        y: screen.height / 6,
         width: spritesheet.width / 8,
         height: spritesheet.height / 2,
         index: 0
@@ -40,11 +50,19 @@ function onResize() {
     screen.height = 600;//window.innerHeight;
 }
 
-function loop() {
+function loop(prevTime) {
+    let currTime = Date.now();
+    let deltaTime = (currTime - prevTime) / 1000;
+    console.log(deltaTime);
+    
+    currSpeed += keys.indexOf("KeyD") < 0 ? decel * deltaTime : accel * deltaTime;
+    if (currSpeed > maxSpeed) currSpeed = maxSpeed;
+    else if (currSpeed < 0) currSpeed = 0;
+
     screenCtx.clearRect(0, 0, screen.width, screen.height);
 
     for (let i = 0; i < speeds.length; i++) {
-        rects[i].x -= speeds[i];
+        rects[i].x -= speeds[i] * currSpeed;
         if (rects[i].x + rects[i].width < 0) rects[i].x = screen.width;
     }
 
@@ -62,9 +80,9 @@ function loop() {
         if (sprite.index >= 8) sprite.index = 0;
     });
 
-    requestAnimationFrame(loop);
+    requestAnimationFrame(() => loop(currTime));
 }
 
-loop();
+requestAnimationFrame(() => loop(Date.now()));
 
 window.onresize = onResize;
