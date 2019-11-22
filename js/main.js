@@ -76,7 +76,7 @@ function loop(prevTime) {
 
     sprites.forEach(sprite => {
         screenCtx.drawImage(sprite.image, Math.floor(sprite.index) * sprite.width, 0, sprite.width, sprite.height, sprite.x, sprite.y, sprite.width, sprite.height);
-        sprite.index += 0.2;
+        sprite.index += 10 * deltaTime;
         if (sprite.index >= 8) sprite.index = 0;
     });
 
