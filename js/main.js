@@ -11,39 +11,74 @@ let accel = 1;
 let decel = -2;
 let maxSpeed = 1;
 
-let speeds = [2, 8, 16, 32, 64, 128];
-//let speeds = [1, 2, 3, 4, 5, 6];
-let speed = 8;
-
 let sprites = [];
+let images = [
+    "./img/test_sprite_run.png",
+    "./img/sky.png",
+    "./img/city.png",
+    "./img/street.png"
+];
+
+images.forEach(image => {
+
+});
 
 onResize();
 let spritesheet = new Image();
-
 spritesheet.onload = () => {
     let sprite = {
         image: spritesheet,
         x: 64,
-        y: screen.height / 6,
+        y: screen.height / 3 * 2.2,
         width: spritesheet.width / 8,
         height: spritesheet.height / 2,
         index: 0
     }
-
     sprites.push(sprite);
+
+let sky = new Image();
+sky.onload = () => {
+    let sprite = {
+        image: sky,
+        x: 0,
+        y: 0,
+        width: screen.height / 3 * 2,
+        height: screen.height / 3 * 2,
+        index: 0
+    }
+    sprites.push(sprite);
+}
+sky.src = "./img/sky.png";
+
+let city = new Image();
+city.onload = () => {
+    let sprite = {
+        image: city,
+        x: 0,
+        y: screen.height / 3,
+        width: screen.height / 3,
+        height: screen.height / 3,
+        index: 0
+    }
+    sprites.push(sprite);
+}
+city.src = "./img/city.png";
+
+let street = new Image();
+street.onload = () => {
+    let sprite = {
+        image: street,
+        x: 0,
+        y: screen.height / 3 * 2,
+        width: screen.height / 3,
+        height: screen.height / 3,
+        index: 0
+    }
+    sprites.push(sprite);
+}
+street.src = "./img/street.png";
 };
-
 spritesheet.src = "./img/test_sprite_run.png";
-
-let rects = [
-    { x: screen.width - speeds[0], y: screen.height / 6 * 0, width: screen.width / 2, height: screen.height / 6, style: "red" },
-    { x: screen.width - speeds[1], y: screen.height / 6 * 1, width: screen.width / 2, height: screen.height / 6, style: "orange" },
-    { x: screen.width - speeds[2], y: screen.height / 6 * 2, width: screen.width / 2, height: screen.height / 6, style: "yellow" },
-    { x: screen.width - speeds[3], y: screen.height / 6 * 3, width: screen.width / 2, height: screen.height / 6, style: "green" },
-    { x: screen.width - speeds[4], y: screen.height / 6 * 4, width: screen.width / 2, height: screen.height / 6, style: "blue" },
-    { x: screen.width - speeds[5], y: screen.height / 6 * 5, width: screen.width / 2, height: screen.height / 6, style: "purple" },
-    { x: 64, y: screen.height / 6 * 4, width: 32, height: 64, style: "black" }
-];
 
 function onResize() {
     screen.width = 800;// window.innerWidth;
@@ -53,7 +88,6 @@ function onResize() {
 function loop(prevTime) {
     let currTime = Date.now();
     let deltaTime = (currTime - prevTime) / 1000;
-    console.log(deltaTime);
     
     currSpeed += keys.indexOf("KeyD") < 0 ? decel * deltaTime : accel * deltaTime;
     if (currSpeed > maxSpeed) currSpeed = maxSpeed;
@@ -61,24 +95,29 @@ function loop(prevTime) {
 
     screenCtx.clearRect(0, 0, screen.width, screen.height);
 
-    for (let i = 0; i < speeds.length; i++) {
-        rects[i].x -= speeds[i] * currSpeed;
-        if (rects[i].x + rects[i].width < 0) rects[i].x = screen.width;
+    if (sprites.length === 4) {
+        sprites[1].x -= 0.2 * currSpeed;
+        sprites[2].x -= 1 * currSpeed;
+        sprites[3].x -= 10 * currSpeed;
+
+        if (sprites[1].x < -sprites[1].width) sprites[1].x += sprites[1].width;
+        if (sprites[2].x < -sprites[2].width) sprites[2].x += sprites[2].width;
+        if (sprites[3].x < -sprites[3].width) sprites[3].x += sprites[3].width;
+
+        for (let i = 1; i < sprites.length; i++) {
+            let x = sprites[i].x;
+            while (x < screen.width) {
+                screenCtx.drawImage(sprites[i].image, x, sprites[i].y, sprites[i].width, sprites[i].height);
+                x += sprites[i].width;
+            }
+        }
+        
+        screenCtx.drawImage(sprites[0].image, Math.floor(sprites[0].index) * sprites[0].width, 0, sprites[0].width, sprites[0].height, sprites[0].x, sprites[0].y, sprites[0].width, sprites[0].height);
+        sprites[0].index += 0.2 * currSpeed;
+        if (sprites[0].index >= 8) sprites[0].index = 0;
     }
 
-    //sprites[0].y += speed;
-    //if (sprites[0].y < 0 || sprites[0].y > screen.height - sprites[0].height) speed *= -1;
-    
-    rects.forEach(rect => {
-        screenCtx.fillStyle = rect.style;
-        screenCtx.fillRect(rect.x, rect.y, rect.width, rect.height);
-    });  
-
-    sprites.forEach(sprite => {
-        screenCtx.drawImage(sprite.image, Math.floor(sprite.index) * sprite.width, 0, sprite.width, sprite.height, sprite.x, sprite.y, sprite.width, sprite.height);
-        sprite.index += 10 * deltaTime;
-        if (sprite.index >= 8) sprite.index = 0;
-    });
+    screenCtx.fillText(`FPS: ${deltaTime * 1000}`, 10, 20);
 
     requestAnimationFrame(() => loop(currTime));
 }
