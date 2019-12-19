@@ -1,6 +1,7 @@
+import {loadImage} from "./loader.js"
 let screen = document.getElementById("screen");
 
-screenCtx = screen.getContext("2d");
+let screenCtx = screen.getContext("2d");
 
 let keys = [];
 window.addEventListener("keydown", evt => { if (keys.indexOf(evt.code) < 0) keys.push(evt.code); });
@@ -11,74 +12,58 @@ let accel = 1;
 let decel = -2;
 let maxSpeed = 1;
 
-let sprites = [];
-let images = [
-    "./img/test_sprite_run.png",
-    "./img/sky.png",
-    "./img/city.png",
-    "./img/street.png"
-];
-
-images.forEach(image => {
-
-});
-
 onResize();
-let spritesheet = new Image();
-spritesheet.onload = () => {
-    let sprite = {
-        image: spritesheet,
+
+let sprites = [
+    {
+        name: "player",
+        path: "./img/test_sprite_run.png",
         x: 64,
         y: screen.height / 3 * 2.2,
-        width: spritesheet.width / 8,
-        height: spritesheet.height / 2,
+        width: 864 / 8,
+        height: 280 / 2,
         index: 0
-    }
-    sprites.push(sprite);
-
-let sky = new Image();
-sky.onload = () => {
-    let sprite = {
-        image: sky,
+    },
+    {
+        name: "sky",
+        path: "./img/sky.png",
         x: 0,
         y: 0,
         width: screen.height / 3 * 2,
         height: screen.height / 3 * 2,
         index: 0
-    }
-    sprites.push(sprite);
-}
-sky.src = "./img/sky.png";
-
-let city = new Image();
-city.onload = () => {
-    let sprite = {
-        image: city,
+    },
+    {
+        name: "city",
+        path: "./img/city.png",
         x: 0,
         y: screen.height / 3,
         width: screen.height / 3,
         height: screen.height / 3,
         index: 0
-    }
-    sprites.push(sprite);
-}
-city.src = "./img/city.png";
-
-let street = new Image();
-street.onload = () => {
-    let sprite = {
-        image: street,
+    },
+    {
+        name: "street",
+        path: "./img/street.png",
         x: 0,
         y: screen.height / 3 * 2,
         width: screen.height / 3,
         height: screen.height / 3,
         index: 0
     }
-    sprites.push(sprite);
-}
-street.src = "./img/street.png";
-};
-spritesheet.src = "./img/test_sprite_run.png";
+];
+
+sprites.forEach(sprite => {
+    loadImage(sprite.path)
+    .then(img => {
+        sprite.image = img;
+    });
+});
+
+Promise.all([])
+.then((player, sky, city, street) => {
+
+});
 
 function onResize() {
     screen.width = 800;// window.innerWidth;
@@ -107,11 +92,13 @@ function loop(prevTime) {
         for (let i = 1; i < sprites.length; i++) {
             let x = sprites[i].x;
             while (x < screen.width) {
+                if (sprites[i].image !== undefined)
                 screenCtx.drawImage(sprites[i].image, x, sprites[i].y, sprites[i].width, sprites[i].height);
                 x += sprites[i].width;
             }
         }
         
+        if (sprites[0].image !== undefined)
         screenCtx.drawImage(sprites[0].image, Math.floor(sprites[0].index) * sprites[0].width, 0, sprites[0].width, sprites[0].height, sprites[0].x, sprites[0].y, sprites[0].width, sprites[0].height);
         sprites[0].index += 0.2 * currSpeed;
         if (sprites[0].index >= 8) sprites[0].index = 0;
